@@ -29,8 +29,7 @@ function onScreenShotClick(e) {
   html2canvas(
     document.querySelector("#capture"), {
       backgroundColor:null,
-      dpi: 144,
-      scale: 2
+      dpi: 300
     }
   ).then(
     (canvas) => {
