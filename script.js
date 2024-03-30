@@ -26,12 +26,20 @@ btn.addEventListener("mousedown", onScreenShotClick);
 function onScreenShotClick(e) {
   var selectedContent = tinymce.get('mytextarea').getContent();
   console.log(selectedContent);
-  html2canvas(document.querySelector("#capture"),{backgroundColor:null}).then((canvas) => {
-    let a = document.createElement("a");
-    a.href = canvas.toDataURL("image/png", 1.0);
-    a.download = $("#capture").text() +".png";
-    a.click();
-  });
+  html2canvas(
+    document.querySelector("#capture"), {
+      backgroundColor:null,
+      dpi: 144,
+      scale: 2
+    }
+  ).then(
+    (canvas) => {
+      let a = document.createElement("a");
+      a.href = canvas.toDataURL("image/png", 1.0);
+      a.download = $("#capture").text() +".png";
+      a.click();
+    }
+  );
 }
 
 
