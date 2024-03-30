@@ -30,7 +30,8 @@ $('#mytextarea').tinymce({
     "body {font-size: 24px; line-height: 0.25;}",
   menubar: false,
   branding: false,
-  toolbar: 'forecolor',
+  plugins: "textcolor",
+  toolbar: "forecolor",
   height: 240,
   placeholder: '請輸入文字 ...',
   setup: function (editor) {
