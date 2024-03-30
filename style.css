@@ -4,7 +4,7 @@
 }
 
 #capture-box {
-    border-radius: 10px;
+    border-radius: 5px;
     padding: 20px;
     border: 2px solid #eee;
     margin-bottom: 10px;
@@ -15,6 +15,7 @@
     padding: 0px 10px 10px 10px;
     font-family: 'ToneOZ';
     font-size: 36px;
+    letter-spacing: 5px;
     line-height: 1.3;
 }
 
