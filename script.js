@@ -27,11 +27,21 @@ $(document).ready(function() {
 
 $('#mytextarea').tinymce({
   content_style:
-    "body {font-size: 24px; line-height: 0.25;}",
+    `
+    body {font-size: 24px; line-height: 0.25;} 
+    @font-face { font-family: 'BpmfZihiSans-Regular'; src: url('./BpmfZihiSans-Regular.ttf') format('truetype')}
+    @font-face { font-family: 'BpmfZihiSans-Medium'; src: url('./BpmfZihiSans-Medium.ttf') format('truetype')}
+    `,
   menubar: false,
   branding: false,
-  toolbar: "forecolor bold",
+  toolbar: "forecolor fontfamily",
+  color_map: [
+    '#754226', '咖啡色',
+    '#EC3131', '紅色',
+    '#1F324D', '深藍色',
+  ],
   height: 240,
+  font_family_formats: '一般=BpmfZihiSans-Regular;粗體=BpmfZihiSans-Medium',
   placeholder: '請輸入文字 ...',
   setup: function (editor) {
     editor.on('keyup', function() {

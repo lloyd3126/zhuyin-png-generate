@@ -3,6 +3,11 @@
     src: url('./BpmfZihiSans-Regular.ttf') format("truetype");
 }
 
+@font-face {
+    font-family: 'BpmfZihiSans-Medium';
+    src: url('./BpmfZihiSans-Medium.ttf') format("truetype");
+}
+
 #capture-box {
     border-radius: 5px;
     padding: 20px;
@@ -17,6 +22,7 @@
     font-size: 36px;
     letter-spacing: 5px;
     line-height: 1.3;
+    color: #754226
 }
 
 #capture p {
