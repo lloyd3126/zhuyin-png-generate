@@ -59,6 +59,11 @@
     #warningMessage {
       display: none;
     }
+
+    /* 隱藏預覽圖片的初始樣式 */
+    .hidden {
+      display: none;
+    }
   </style>
 </head>
 
@@ -66,8 +71,19 @@
   <div class="container-fluid p-3">
     <div class="row mb-3">
       <div class="col">
+        <h1 class="fs-3">歡迎使用文字轉注音圖片服務！</h1>
+        <p class="m-0">
+          請在下方的文字區域中輸入您想要轉換的中文文字，並根據需要調整行距、字距、字體大小、字體類型及文字顏色。</p>
+        <p class="m-0">
+          每一次更改到文字，網站都會協助自動將轉換好的圖片複製到剪貼簿一次，您可以依照用途選擇要不要另外下載生成的圖片。</p>
+      </div>
+    </div>
+    <hr class="my-4">
+    <div class="row mb-3">
+      <div class="col">
         <label for="textInput" class="form-label">請輸入要轉成注音的文字</label>
-        <textarea class="form-control" id="textInput" rows="5" placeholder="請輸入文字 ..."></textarea>
+        <textarea class="form-control" id="textInput" rows="5" placeholder="目前剪貼簿內沒有複製任何文字，
+請複製文字後重整頁面或直接輸入文字。"></textarea>
       </div>
     </div>
     <div class="row">
@@ -136,9 +152,9 @@
       </div>
     </div>
     <div id="warningMessage" class="alert alert-warning" role="alert">
-      A simple warning alert—check it out!
+      字元數已超過上限，僅顯示前500個字元。
     </div>
-    <div id="imagePreview">
+    <div id="imagePreview" class="hidden">
       <img id="previewImage" src="" alt="預覽圖片將顯示在此處">
     </div>
   </div>
@@ -258,7 +274,16 @@
         scale: 2
       }).then((canvas) => {
         const imgData = canvas.toDataURL("image/png");
-        document.getElementById('previewImage').src = imgData;
+        const previewImage = document.getElementById('previewImage');
+        const imagePreview = document.getElementById('imagePreview');
+
+        if (imgData) {
+          previewImage.src = imgData;
+          imagePreview.classList.remove('hidden'); // 顯示預覽區域
+        } else {
+          previewImage.src = "";
+          imagePreview.classList.add('hidden'); // 隱藏預覽區域
+        }
 
         // 複製圖片到剪貼簿
         fetch(imgData)
@@ -273,6 +298,7 @@
           });
       }).catch((error) => {
         console.error('生成圖片時出錯:', error);
+        document.getElementById('imagePreview').classList.add('hidden'); // 發生錯誤時隱藏預覽區域
       });
     }
 
@@ -308,6 +334,7 @@
             generateImage();
           } else {
             console.log('剪貼簿中的文字不包含中文字符，未自動帶入。');
+            document.getElementById('imagePreview').classList.add('hidden'); // 沒有中文字符時隱藏預覽區域
           }
         } else {
           console.log('剪貼簿中沒有文字');
@@ -316,9 +343,11 @@
 請複製文字後重整頁面或直接輸入文字。`;
           document.getElementById('textInput').value = emptyMessage;
           document.getElementById('capture').innerHTML = convertNewlinesToBr(escapeHTML(emptyMessage));
+          document.getElementById('imagePreview').classList.add('hidden'); // 無文字時隱藏預覽區域
         }
       }).catch(err => {
         console.error('讀取剪貼簿時出錯:', err);
+        document.getElementById('imagePreview').classList.add('hidden'); // 讀取錯誤時隱藏預覽區域
       });
     }
 
@@ -360,6 +389,15 @@
         // 初始化時從剪貼簿讀取
         readFromClipboard();
 
+        // 根據是否有圖片顯示或隱藏預覽區域
+        const previewImage = document.getElementById('previewImage');
+        const imagePreview = document.getElementById('imagePreview');
+        if (previewImage.src && previewImage.src !== "") {
+          imagePreview.classList.remove('hidden');
+        } else {
+          imagePreview.classList.add('hidden');
+        }
+
         // 輸入事件監聽器
         const inputs = ['lineHeightInput', 'letterSpacingInput', 'fontSizeInput', 'colorPicker', 'textInput', 'fontSelect'];
         inputs.forEach(id => {
@@ -392,7 +430,11 @@
             document.getElementById('capture').style.color = colorValue;
             document.getElementById('capture').style.fontFamily = fontFamilyValue;
 
-            debouncedGenerateImage();
+            if (textValue.trim() === '') {
+              document.getElementById('imagePreview').classList.add('hidden'); // 無文字時隱藏預覽區域
+            } else {
+              debouncedGenerateImage();
+            }
 
             // 保存設定
             const currentSettings = {
@@ -431,6 +473,7 @@
 
           request.onsuccess = () => {
             alert('設定已重置');
+            document.getElementById('imagePreview').classList.add('hidden'); // 重置後隱藏預覽區域
             location.reload();
           };
 
