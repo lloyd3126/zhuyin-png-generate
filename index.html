@@ -7,8 +7,6 @@
   <title>文字轉注音圖片</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
     integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous" />
-  <script src="https://cdn.tiny.cloud/1/x8gu60riouu6eqf05bvwt8yk8kl5u6mqs3zpr8qtg5d1lli4/tinymce/7/tinymce.min.js"
-    referrerpolicy="origin"></script>
   <style>
     @font-face {
       font-family: 'BpmfZihiSans-Regular';
@@ -20,11 +18,16 @@
       src: url('./BpmfZihiSans-Medium.ttf') format("truetype");
     }
 
+    /* 添加更多字體 */
+    @font-face {
+      font-family: 'YourCustomFont';
+      src: url('./YourCustomFont.ttf') format("truetype");
+    }
+
     #capture-box {
       border-radius: 5px;
       padding: 20px;
       border: 2px solid #eee;
-      margin-bottom: 10px;
     }
 
     #capture {
@@ -36,31 +39,13 @@
       line-height: 1.3;
       color: #754226;
       white-space: pre-wrap;
-      /* 保留換行符號 */
     }
 
     #capture p {
       margin: 0;
     }
 
-    .button {
-      width: 100%;
-      margin-top: 10px;
-      border-radius: 10px;
-      background-color: #04AA6D;
-      /* Green */
-      border: none;
-      color: white;
-      padding: 15px 32px;
-      text-align: center;
-      text-decoration: none;
-      display: inline-block;
-      font-size: 16px;
-    }
-
-    /* 新增圖片預覽區域 */
     #imagePreview {
-      margin-top: 20px;
       text-align: center;
     }
 
@@ -70,69 +55,95 @@
       border-radius: 5px;
     }
 
-    /* 新增提示訊息樣式 */
-    #alertMessage {
-      margin-top: 10px;
+    /* 新增的警告訊息樣式 */
+    #warningMessage {
       display: none;
     }
   </style>
 </head>
 
 <body>
-  <div class="container-fluid mt-2">
-    <div class="d-flex mb-2">
-      <div class="input-group input-group-sm me-2">
-        <span class="input-group-text">每行距離</span>
-        <input class="form-control" id="lineHeightInput" type="number" min="0" step="0.1" value="1.5" aria-label="每行距離"
-          aria-describedby="inputGroup-sizing-sm">
-      </div>
-      <div class="input-group input-group-sm me-2">
-        <span class="input-group-text">文字距離</span>
-        <input class="form-control" id="letterSpacingInput" type="number" min="1" max="10" step="0.1" value="1.5"
-          aria-label="文字距離" aria-describedby="inputGroup-sizing-sm">
-      </div>
-      <div class="input-group input-group-sm">
-        <span class="input-group-text">文字大小</span>
-        <input class="form-control" id="fontSizeInput" type="number" min="1" max="100" value="32" aria-label="文字大小"
-          aria-describedby="inputGroup-sizing-sm">
+  <div class="container-fluid p-3">
+    <div class="row mb-3">
+      <div class="col">
+        <label for="textInput" class="form-label">請輸入要轉成注音的文字</label>
+        <textarea class="form-control" id="textInput" rows="5" placeholder="請輸入文字 ..."></textarea>
       </div>
     </div>
-    <div id="capture-box">
+    <div class="row">
+      <div class="col-12 col-md-3 mb-3">
+        <div class="d-flex flex-wrap">
+          <div class="input-group">
+            <span class="input-group-text">行距</span>
+            <input class="form-control" id="lineHeightInput" type="number" min="0" step="0.1" value="1.5"
+              aria-label="每行距離" aria-describedby="inputGroup-sizing-sm">
+          </div>
+        </div>
+      </div>
+      <div class="col-12 col-md-3 mb-3">
+        <div class="d-flex flex-wrap">
+          <div class="input-group">
+            <span class="input-group-text">字距</span>
+            <input class="form-control" id="letterSpacingInput" type="number" min="1" max="10" step="0.1" value="1.5"
+              aria-label="文字距離" aria-describedby="inputGroup-sizing-sm">
+          </div>
+        </div>
+      </div>
+      <div class="col-12 col-md-3 mb-3">
+        <div class="input-group">
+          <span class="input-group-text">大小</span>
+          <input class="form-control" id="fontSizeInput" type="number" min="1" max="100" value="32" aria-label="文字大小"
+            aria-describedby="inputGroup-sizing-sm">
+        </div>
+      </div>
+      <div class="col-12 col-md-3 mb-3">
+        <div class="input-group">
+          <label class="input-group-text" for="fontSelect">字體</label>
+          <select class="form-select" id="fontSelect">
+            <option value="'BpmfZihiSans-Regular'">BpmfZihiSans-Regular</option>
+            <option value="'BpmfZihiSans-Medium'">BpmfZihiSans-Medium</option>
+            <option value="'YourCustomFont'">YourCustomFont</option>
+          </select>
+        </div>
+      </div>
+
+    </div>
+    <div id="capture-box" class="visually-hidden vw-100">
       <div id="capture">請輸入文字 ...</div>
     </div>
-    <textarea id="mytextarea"></textarea>
-    <div class="d-grid gap-2 mt-2">
-      <button id="btnScreenShot" class="btn btn-primary" type="button">
-        下載注音圖檔
-      </button>
+    <div class="row">
+      <div class="col-12 col-md-3 mb-3">
+        <div class="input-group">
+          <label class="input-group-text" for="colorPicker">顏色</label>
+          <input type="color" class="form-control form-control-color" id="colorPicker" value="#754226"
+            title="Choose your color">
+        </div>
+      </div>
+      <div class="col-12 col-md-3 mb-3">
+        <button id="btnScreenShot" class="btn btn-primary w-100" type="button">
+          下載注音圖檔
+        </button>
+      </div>
+      <div class="col-12 col-md-3 mb-3">
+        <button id="btnReadClipboard" class="btn btn-secondary w-100" type="button">
+          從剪貼簿讀取文字
+        </button>
+      </div>
+      <div class="col-12 col-md-3 mb-3">
+        <button id="btnResetSettings" class="btn btn-warning w-100" type="button">
+          重置設定
+        </button>
+      </div>
     </div>
-    <!-- 新增圖片預覽區域 -->
+    <div id="warningMessage" class="alert alert-warning" role="alert">
+      A simple warning alert—check it out!
+    </div>
     <div id="imagePreview">
-      <h5>圖片預覽：</h5>
       <img id="previewImage" src="" alt="預覽圖片將顯示在此處">
-    </div>
-    <!-- 新增讀取剪貼簿按鈕（可選） -->
-    <div class="d-grid gap-2 mt-2">
-      <button id="btnReadClipboard" class="btn btn-secondary" type="button">
-        從剪貼簿讀取文字
-      </button>
-    </div>
-    <!-- 新增重置設定按鈕（可選） -->
-    <div class="d-grid gap-2 mt-2">
-      <button id="btnResetSettings" class="btn btn-warning" type="button">
-        重置 TinyMCE 設定
-      </button>
-    </div>
-    <!-- 新增提示訊息 -->
-    <div id="alertMessage" class="alert alert-info" role="alert">
-      剪貼簿中的文字已被截斷為前500個字符。
     </div>
   </div>
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"
-    integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g=="
-    crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@tinymce/tinymce-jquery@2/dist/tinymce-jquery.min.js"></script>
+  <!-- 引入必要的腳本 -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"
     integrity="sha512-BNaRQnYJYiPSqHHDb58B0yaPfCu+Wgds8Gp/gU33kqBtgNS4tSPHuGibyoeqMV/TJlSKda6FXzoEyYGjTe+vXA=="
     crossorigin="anonymous" referrerpolicy="no-referrer"></script>
@@ -143,10 +154,10 @@
     integrity="sha384-0pUGZvbkm6XF6gxjEnlmuGrJXVbNuzT9qBBavbLwCsOGabYfZo0T0to5eqruptLy"
     crossorigin="anonymous"></script>
   <script>
-    // 函數：初始化 IndexedDB
+    // 初始化 IndexedDB
     function initDB() {
       return new Promise((resolve, reject) => {
-        const request = indexedDB.open('TinyMCESettingsDB', 1);
+        const request = indexedDB.open('SettingsDB', 1);
 
         request.onerror = (event) => {
           console.error('IndexedDB 錯誤:', event);
@@ -167,12 +178,12 @@
       });
     }
 
-    // 函數：保存設定到 IndexedDB
+    // 保存設定到 IndexedDB
     function saveSettingsToDB(db, settings) {
       return new Promise((resolve, reject) => {
         const transaction = db.transaction(['settings'], 'readwrite');
         const store = transaction.objectStore('settings');
-        const data = { id: 'tinymce', config: settings };
+        const data = { id: 'appSettings', config: settings };
         const request = store.put(data);
 
         request.onsuccess = () => {
@@ -186,12 +197,12 @@
       });
     }
 
-    // 函數：從 IndexedDB 載入設定
+    // 從 IndexedDB 加載設定
     function loadSettingsFromDB(db) {
       return new Promise((resolve, reject) => {
         const transaction = db.transaction(['settings'], 'readonly');
         const store = transaction.objectStore('settings');
-        const request = store.get('tinymce');
+        const request = store.get('appSettings');
 
         request.onsuccess = (event) => {
           if (request.result) {
@@ -208,21 +219,25 @@
       });
     }
 
-    // 函數：檢查字串是否包含中文字符
+    // 檢查文本是否包含中文字符
     function containsChinese(text) {
-      // Unicode範圍：\u4e00-\u9fff 包含大部分中文字符
       const chineseRegex = /[\u4e00-\u9fff]/;
       return chineseRegex.test(text);
     }
 
-    // 函數：轉義HTML標籤
+    // 轉義 HTML 標籤
     function escapeHTML(text) {
       const div = document.createElement('div');
       div.appendChild(document.createTextNode(text));
       return div.innerHTML;
     }
 
-    // 函數：將換行符號轉換為 <br>
+    // 將 <br> 轉換為換行符
+    function convertBrToNewline(text) {
+      return text.replace(/<br\s*\/?>/gi, '\n');
+    }
+
+    // 將換行符轉換為 <br>
     function convertNewlinesToBr(text) {
       return text.replace(/(?:\r\n|\r|\n)/g, '<br>');
     }
@@ -236,17 +251,16 @@
       };
     }
 
-    // 函數：生成圖片並更新預覽，同時複製到剪貼簿
+    // 生成圖片並更新預覽
     function generateImage() {
       html2canvas(document.querySelector("#capture"), {
         backgroundColor: null,
-        scale: 2 // 提高畫質
+        scale: 2
       }).then((canvas) => {
         const imgData = canvas.toDataURL("image/png");
-        // 更新預覽圖片
         document.getElementById('previewImage').src = imgData;
 
-        // 將圖片複製到剪貼簿
+        // 複製圖片到剪貼簿
         fetch(imgData)
           .then(res => res.blob())
           .then(blob => {
@@ -262,18 +276,15 @@
       });
     }
 
-    // 定義防抖後的生成圖片函數
-    const debouncedGenerateImage = debounce(generateImage, 500); // 500 毫秒
+    const debouncedGenerateImage = debounce(generateImage, 500);
 
-    // 函數：檢查瀏覽器是否支持 Clipboard API
     function isClipboardSupported() {
       return navigator.clipboard && navigator.clipboard.write && navigator.clipboard.readText;
     }
 
-    // 函數：從剪貼簿讀取文字並設置到編輯器
     function readFromClipboard() {
       if (!isClipboardSupported()) {
-        alert('您的瀏覽器不支持讀取剪貼簿的功能。請使用支持此功能的現代瀏覽器（如最新版本的 Chrome、Edge 或 Firefox）。');
+        alert('您的瀏覽器不支持讀取剪貼簿的功能。');
         return;
       }
 
@@ -281,163 +292,146 @@
         if (text) {
           if (text.length > 500) {
             text = text.slice(0, 500);
-            // 顯示提示訊息
-            $('#alertMessage').show();
-            console.log('剪貼簿中的文字已被截斷為前500個字符。');
+            document.getElementById('warningMessage').style.display = 'block';
           } else {
-            $('#alertMessage').hide();
+            document.getElementById('warningMessage').style.display = 'none';
           }
 
+          // 將 <br> 轉換為換行符
+          text = convertBrToNewline(text);
+
           if (containsChinese(text)) {
-            // 轉義HTML標籤
             const escapedText = escapeHTML(text);
             const formattedText = convertNewlinesToBr(escapedText);
-            tinymce.get('mytextarea').setContent(formattedText);
-            $("#capture").html(formattedText);
-            generateImage(); // 生成圖片並複製
-            console.log('已從剪貼簿讀取並設置文字到編輯器');
+            document.getElementById('textInput').value = text; // 使用轉換後的換行符
+            document.getElementById('capture').innerHTML = formattedText;
+            generateImage();
           } else {
             console.log('剪貼簿中的文字不包含中文字符，未自動帶入。');
           }
         } else {
           console.log('剪貼簿中沒有文字');
+          // 當剪貼簿為空時，顯示提示訊息
+          const emptyMessage = `目前剪貼簿內沒有複製任何文字，
+請複製文字後重整頁面或直接輸入文字。`;
+          document.getElementById('textInput').value = emptyMessage;
+          document.getElementById('capture').innerHTML = convertNewlinesToBr(escapeHTML(emptyMessage));
         }
       }).catch(err => {
         console.error('讀取剪貼簿時出錯:', err);
       });
     }
 
-    $(document).ready(async function () {
+    document.addEventListener('DOMContentLoaded', async function () {
       try {
-        // 初始化 IndexedDB
         const db = await initDB();
         const savedSettings = await loadSettingsFromDB(db);
 
-        // 設定默認值
         let lineHeight = '1.5';
         let letterSpacing = '1.5';
         let fontSize = '32';
+        let textColor = '#754226';
+        let textContent = '';
+        let fontFamily = "'BpmfZihiSans-Regular'";
 
         if (savedSettings) {
-          // 如果有保存的設定，載入它們
           lineHeight = savedSettings.lineHeight || lineHeight;
           letterSpacing = savedSettings.letterSpacing || letterSpacing;
           fontSize = savedSettings.fontSize || fontSize;
+          textColor = savedSettings.textColor || textColor;
+          textContent = savedSettings.textContent || textContent;
+          fontFamily = savedSettings.fontFamily || fontFamily;
         }
 
-        // 設定輸入框的值
-        $('#lineHeightInput').val(lineHeight);
-        $('#letterSpacingInput').val(letterSpacing);
-        $('#fontSizeInput').val(fontSize);
+        document.getElementById('lineHeightInput').value = lineHeight;
+        document.getElementById('letterSpacingInput').value = letterSpacing;
+        document.getElementById('fontSizeInput').value = fontSize;
+        document.getElementById('colorPicker').value = textColor;
+        document.getElementById('textInput').value = textContent;
+        document.getElementById('fontSelect').value = fontFamily;
 
-        // 初始化 TinyMCE 編輯器
-        tinymce.init({
-          selector: '#mytextarea',
-          content_style: `
-            body {font-size: ${fontSize}px; line-height: ${lineHeight}; letter-spacing: ${letterSpacing}px;} 
-            @font-face { font-family: 'BpmfZihiSans-Regular'; src: url('./BpmfZihiSans-Regular.ttf') format('truetype')}
-            @font-face { font-family: 'BpmfZihiSans-Medium'; src: url('./BpmfZihiSans-Medium.ttf') format('truetype')}
-          `,
-          menubar: false,
-          branding: false,
-          toolbar: "forecolor fontfamily",
-          color_map: [
-            '#754226', '咖啡色',
-            '#EC3131', '紅色',
-            '#1F324D', '深藍色',
-          ],
-          height: 240,
-          font_family_formats: '一般=BpmfZihiSans-Regular;粗體=BpmfZihiSans-Medium',
-          placeholder: '請輸入文字 ...',
-          setup: function (editor) {
-            editor.on('init', function () {
-              // 嘗試自動讀取剪貼簿
-              readFromClipboard();
-            });
-            editor.on('keyup change', function () {
-              let selectedContent = editor.getContent();
-              console.log(selectedContent);
-              $("#capture").html(selectedContent || "請輸入文字 ...");
-              let fontSizeInput = $("#fontSizeInput").val();
-              let letterSpacingInput = $("#letterSpacingInput").val();
-              let lineHeightInput = $("#lineHeightInput").val();
-              $('#capture').css({
-                'fontSize': fontSizeInput + 'px',
-                'letterSpacing': letterSpacingInput + 'px',
-                'lineHeight': lineHeightInput
-              });
-              debouncedGenerateImage(); // 每次變更後生成圖片並複製
+        document.getElementById('capture').style.lineHeight = lineHeight;
+        document.getElementById('capture').style.letterSpacing = letterSpacing + 'px';
+        document.getElementById('capture').style.fontSize = fontSize + 'px';
+        document.getElementById('capture').style.color = textColor;
+        document.getElementById('capture').style.fontFamily = fontFamily;
+        document.getElementById('capture').innerHTML = convertNewlinesToBr(escapeHTML(textContent)) || '請輸入文字 ...';
 
-              // 保存當前設定到 IndexedDB
-              const currentSettings = {
-                content_style: `
-                  body {font-size: ${fontSizeInput}px; line-height: ${lineHeightInput}; letter-spacing: ${letterSpacingInput}px;} 
-                  @font-face { font-family: 'BpmfZihiSans-Regular'; src: url('./BpmfZihiSans-Regular.ttf') format('truetype')}
-                  @font-face { font-family: 'BpmfZihiSans-Medium'; src: url('./BpmfZihiSans-Medium.ttf') format('truetype')}
-                `,
-                toolbar: editor.settings.toolbar,
-                color_map: editor.settings.color_map,
-                height: editor.settings.height,
-                font_family_formats: editor.settings.font_family_formats,
-                placeholder: editor.settings.placeholder,
-                lineHeight: $("#lineHeightInput").val(),
-                letterSpacing: $("#letterSpacingInput").val(),
-                fontSize: $("#fontSizeInput").val()
-              };
-              saveSettingsToDB(db, currentSettings);
-            });
-          }
-        });
+        // 初始化時從剪貼簿讀取
+        readFromClipboard();
 
-        // 監聽輸入框變化
-        $('#fontSizeInput, #letterSpacingInput, #lineHeightInput').on('input', function () {
-          let fontSizeInput = $("#fontSizeInput").val();
-          let letterSpacingInput = $("#letterSpacingInput").val();
-          let lineHeightInput = $("#lineHeightInput").val();
-          $('#capture').css({
-            'fontSize': fontSizeInput + 'px',
-            'letterSpacing': letterSpacingInput + 'px',
-            'lineHeight': lineHeightInput
+        // 輸入事件監聽器
+        const inputs = ['lineHeightInput', 'letterSpacingInput', 'fontSizeInput', 'colorPicker', 'textInput', 'fontSelect'];
+        inputs.forEach(id => {
+          document.getElementById(id).addEventListener('input', () => {
+            const lineHeightValue = document.getElementById('lineHeightInput').value;
+            const letterSpacingValue = document.getElementById('letterSpacingInput').value;
+            const fontSizeValue = document.getElementById('fontSizeInput').value;
+            const colorValue = document.getElementById('colorPicker').value;
+            let textValue = document.getElementById('textInput').value || '請輸入文字 ...';
+            const fontFamilyValue = document.getElementById('fontSelect').value;
+
+            // 檢查字元數是否超過500
+            if (textValue.length > 500) {
+              textValue = textValue.slice(0, 500);
+              document.getElementById('textInput').value = textValue;
+              document.getElementById('warningMessage').style.display = 'block';
+            } else {
+              document.getElementById('warningMessage').style.display = 'none';
+            }
+
+            // 更新 capture 區塊
+            const escapedText = escapeHTML(textValue);
+            const formattedText = convertNewlinesToBr(escapedText);
+            document.getElementById('capture').innerHTML = formattedText;
+
+            // 更新樣式
+            document.getElementById('capture').style.lineHeight = lineHeightValue;
+            document.getElementById('capture').style.letterSpacing = letterSpacingValue + 'px';
+            document.getElementById('capture').style.fontSize = fontSizeValue + 'px';
+            document.getElementById('capture').style.color = colorValue;
+            document.getElementById('capture').style.fontFamily = fontFamilyValue;
+
+            debouncedGenerateImage();
+
+            // 保存設定
+            const currentSettings = {
+              lineHeight: lineHeightValue,
+              letterSpacing: letterSpacingValue,
+              fontSize: fontSizeValue,
+              textColor: colorValue,
+              textContent: textValue,
+              fontFamily: fontFamilyValue
+            };
+            saveSettingsToDB(db, currentSettings);
           });
-          debouncedGenerateImage(); // 每次控制項變更後生成圖片並複製
-
-          // 保存當前設定到 IndexedDB
-          const currentSettings = {
-            content_style: `
-              body {font-size: ${fontSizeInput}px; line-height: ${lineHeightInput}; letter-spacing: ${letterSpacingInput}px;} 
-              @font-face { font-family: 'BpmfZihiSans-Regular'; src: url('./BpmfZihiSans-Regular.ttf') format('truetype')}
-              @font-face { font-family: 'BpmfZihiSans-Medium'; src: url('./BpmfZihiSans-Medium.ttf') format('truetype')}
-            `,
-            toolbar: tinymce.get('mytextarea').settings.toolbar,
-            color_map: tinymce.get('mytextarea').settings.color_map,
-            height: tinymce.get('mytextarea').settings.height,
-            font_family_formats: tinymce.get('mytextarea').settings.font_family_formats,
-            placeholder: tinymce.get('mytextarea').settings.placeholder,
-            lineHeight: $("#lineHeightInput").val(),
-            letterSpacing: $("#letterSpacingInput").val(),
-            fontSize: $("#fontSizeInput").val()
-          };
-          saveSettingsToDB(db, currentSettings);
         });
 
-        // 監聽截圖按鈕
-        var btn = document.getElementById("btnScreenShot");
-        btn.addEventListener("click", onScreenShotClick);
+        // 下載圖片按鈕
+        document.getElementById('btnScreenShot').addEventListener('click', () => {
+          html2canvas(document.querySelector("#capture"), {
+            backgroundColor: null,
+            scale: 2
+          }).then((canvas) => {
+            let a = document.createElement("a");
+            a.href = canvas.toDataURL("image/png", 1.0);
+            a.download = (document.getElementById('capture').innerText.trim() || "注音圖") + ".png";
+            a.click();
+          });
+        });
 
-        // 監聽讀取剪貼簿按鈕（可選）
-        var btnReadClipboard = document.getElementById("btnReadClipboard");
-        btnReadClipboard.addEventListener("click", readFromClipboard);
+        // 從剪貼簿讀取按鈕
+        document.getElementById('btnReadClipboard').addEventListener('click', readFromClipboard);
 
-        // 監聽重置設定按鈕
-        var btnResetSettings = document.getElementById("btnResetSettings");
-        btnResetSettings.addEventListener("click", function () {
+        // 重置設定按鈕
+        document.getElementById('btnResetSettings').addEventListener('click', () => {
           const transaction = db.transaction(['settings'], 'readwrite');
           const store = transaction.objectStore('settings');
-          const request = store.delete('tinymce');
+          const request = store.delete('appSettings');
 
           request.onsuccess = () => {
             alert('設定已重置');
-            location.reload(); // 重新載入頁面以應用默認設定
+            location.reload();
           };
 
           request.onerror = (event) => {
@@ -448,22 +442,6 @@
         console.error('初始化過程中出錯:', error);
       }
     });
-
-    function onScreenShotClick(e) {
-      html2canvas(
-        document.querySelector("#capture"), {
-        backgroundColor: null,
-        scale: 2 // 提高畫質
-      }
-      ).then(
-        (canvas) => {
-          let a = document.createElement("a");
-          a.href = canvas.toDataURL("image/png", 1.0);
-          a.download = $("#capture").text().trim() || "注音圖.png";
-          a.click();
-        }
-      );
-    }
   </script>
 </body>
 
