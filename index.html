@@ -9,60 +9,19 @@
     integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous" />
   <style>
     @font-face {
-      font-family: 'BpmfZihiSans-Regular';
-      src: url('./BpmfZihiSans-Regular.ttf') format("truetype");
+      font-family: 'BpmfZihiOnly-R';
+      src: url('./font/BpmfSpecial/BpmfZihiOnly-R.ttf') format("truetype");
     }
 
     @font-face {
-      font-family: 'BpmfZihiSans-Medium';
-      src: url('./BpmfZihiSans-Medium.ttf') format("truetype");
+      font-family: 'NotoSansTC-Medium';
+      src: url('./font/Noto_Sans_TC/static/NotoSansTC-Medium.ttf') format("truetype");
     }
 
-    /* 添加更多字體 */
-    @font-face {
-      font-family: 'YourCustomFont';
-      src: url('./YourCustomFont.ttf') format("truetype");
-    }
-
-    #capture-box {
-      border-radius: 5px;
-      padding: 20px;
-      border: 2px solid #eee;
-    }
-
-    #capture {
-      display: inline-block;
-      padding: 0px 10px 10px 10px;
-      font-family: 'BpmfZihiSans-Regular';
-      font-size: 36px;
-      letter-spacing: 5px;
-      line-height: 1.3;
-      color: #754226;
+    /* 保持顯示格式 */
+    #capture div {
       white-space: pre-wrap;
-    }
-
-    #capture p {
-      margin: 0;
-    }
-
-    #imagePreview {
-      text-align: center;
-    }
-
-    #imagePreview img {
-      max-width: 100%;
-      border: 1px solid #ddd;
-      border-radius: 5px;
-    }
-
-    /* 新增的警告訊息樣式 */
-    #warningMessage {
-      display: none;
-    }
-
-    /* 隱藏預覽圖片的初始樣式 */
-    .hidden {
-      display: none;
+      /* 保留空白字符和換行 */
     }
   </style>
 </head>
@@ -72,94 +31,73 @@
     <div class="row mb-3">
       <div class="col">
         <h1 class="fs-3">歡迎使用文字轉注音圖片服務！</h1>
-        <p class="m-0">
-          請在下方的文字區域中輸入您想要轉換的中文文字，並根據需要調整行距、字距、字體大小、字體類型及文字顏色。</p>
-        <p class="m-0">
-          每一次更改到文字，網站都會協助自動將轉換好的圖片複製到剪貼簿一次，您可以依照用途選擇要不要另外下載生成的圖片。</p>
       </div>
     </div>
-    <hr class="my-4">
     <div class="row mb-3">
       <div class="col">
-        <label for="textInput" class="form-label">請輸入要轉成注音的文字</label>
-        <textarea class="form-control" id="textInput" rows="5" placeholder="目前剪貼簿內沒有複製任何文字，
-請複製文字後重整頁面或直接輸入文字。"></textarea>
-      </div>
-    </div>
-    <div class="row">
-      <div class="col-12 col-md-3 mb-3">
-        <div class="d-flex flex-wrap">
-          <div class="input-group">
-            <span class="input-group-text">行距</span>
-            <input class="form-control" id="lineHeightInput" type="number" min="0" step="0.1" value="1.5"
-              aria-label="每行距離" aria-describedby="inputGroup-sizing-sm">
-          </div>
+        <div class="input-group mb-3">
+          <span class="input-group-text">中文</span>
+          <textarea id="textarea-1" class="form-control" style="overflow: hidden;"></textarea>
         </div>
-      </div>
-      <div class="col-12 col-md-3 mb-3">
-        <div class="d-flex flex-wrap">
-          <div class="input-group">
-            <span class="input-group-text">字距</span>
-            <input class="form-control" id="letterSpacingInput" type="number" min="1" max="10" step="0.1" value="1.5"
-              aria-label="文字距離" aria-describedby="inputGroup-sizing-sm">
-          </div>
+        <!-- 注音輸入區 -->
+        <div class="input-group mb-3">
+          <span class="input-group-text">注音</span>
+          <textarea id="textarea-2" class="form-control" style="overflow: hidden;"></textarea>
         </div>
-      </div>
-      <div class="col-12 col-md-3 mb-3">
-        <div class="input-group">
-          <span class="input-group-text">大小</span>
-          <input class="form-control" id="fontSizeInput" type="number" min="1" max="100" value="32" aria-label="文字大小"
-            aria-describedby="inputGroup-sizing-sm">
-        </div>
-      </div>
-      <div class="col-12 col-md-3 mb-3">
-        <div class="input-group">
-          <label class="input-group-text" for="fontSelect">字體</label>
-          <select class="form-select" id="fontSelect">
-            <option value="'BpmfZihiSans-Regular'">BpmfZihiSans-Regular</option>
-            <option value="'BpmfZihiSans-Medium'">BpmfZihiSans-Medium</option>
-            <option value="'YourCustomFont'">YourCustomFont</option>
-          </select>
-        </div>
-      </div>
-
-    </div>
-    <div id="capture-box" class="visually-hidden vw-100">
-      <div id="capture">請輸入文字 ...</div>
-    </div>
-    <div class="row">
-      <div class="col-12 col-md-3 mb-3">
-        <div class="input-group">
-          <label class="input-group-text" for="colorPicker">顏色</label>
-          <input type="color" class="form-control form-control-color" id="colorPicker" value="#754226"
+        <div class="input-group mb-3">
+          <label class="input-group-text">預設顏色</label>
+          <input type="color" class="form-control form-control-color" id="color-input" value="#563d7c"
             title="Choose your color">
         </div>
+        <div class="input-group mb-3">
+          <span class="input-group-text">自訂顏色</span>
+          <textarea id="textarea-3" class="form-control" style="overflow: hidden;"></textarea>
+        </div>
+        <!-- 中文輸入區 -->
+
+        <!-- 顯示區 -->
+        <div class="input-group mb-3">
+          <button id="copy-image-btn" class="btn btn-primary w-100">複製圖片到剪貼簿</button>
+        </div>
+        <div id="capture" class="border position-relative d-inline-block" style="padding: 5px 10px 5px 5px;">
+          <div id="text-1" class="position-relative" style="
+            margin: 0;
+            overflow: hidden;
+            font-size: 36px;
+            letter-spacing: 22px;
+            line-height: 1.3;
+            color: #754226;
+            top: 0; 
+            visibility: hidden;
+            font-family: 'NotoSansTC-Medium';">
+          </div>
+          <div id="text-2" class="position-absolute" style="
+            overflow: hidden;
+            font-size: 36px;
+            letter-spacing: 22px;
+            line-height: 1.3;
+            color: #754226;
+            top: 0; 
+            left: 10px; 
+            width: 100%;
+            font-family: 'NotoSansTC-Medium';">
+          </div>
+          <div id="text-3" class="position-absolute" style="
+            font-size: 36px;
+            letter-spacing: 22px;
+            line-height: 1.3;
+            color: #754226;
+            top: 0;
+            left: 36px; 
+            width: 100%;
+            font-family: 'BpmfZihiOnly-R';">
+          </div>
+        </div>
       </div>
-      <div class="col-12 col-md-3 mb-3">
-        <button id="btnScreenShot" class="btn btn-primary w-100" type="button">
-          下載注音圖檔
-        </button>
-      </div>
-      <div class="col-12 col-md-3 mb-3">
-        <button id="btnReadClipboard" class="btn btn-secondary w-100" type="button">
-          從剪貼簿讀取文字
-        </button>
-      </div>
-      <div class="col-12 col-md-3 mb-3">
-        <button id="btnResetSettings" class="btn btn-warning w-100" type="button">
-          重置設定
-        </button>
-      </div>
-    </div>
-    <div id="warningMessage" class="alert alert-warning" role="alert">
-      字元數已超過上限，僅顯示前500個字元。
-    </div>
-    <div id="imagePreview" class="hidden">
-      <img id="previewImage" src="" alt="預覽圖片將顯示在此處">
     </div>
   </div>
 
-  <!-- 引入必要的腳本 -->
+  <!-- 引入 html2canvas 庫 -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"
     integrity="sha512-BNaRQnYJYiPSqHHDb58B0yaPfCu+Wgds8Gp/gU33kqBtgNS4tSPHuGibyoeqMV/TJlSKda6FXzoEyYGjTe+vXA=="
     crossorigin="anonymous" referrerpolicy="no-referrer"></script>
@@ -170,320 +108,142 @@
     integrity="sha384-0pUGZvbkm6XF6gxjEnlmuGrJXVbNuzT9qBBavbLwCsOGabYfZo0T0to5eqruptLy"
     crossorigin="anonymous"></script>
   <script>
-    // 初始化 IndexedDB
-    function initDB() {
-      return new Promise((resolve, reject) => {
-        const request = indexedDB.open('SettingsDB', 1);
+    document.addEventListener("DOMContentLoaded", function () {
+      // 取得 DOM 元素
+      function autoResizeTextarea(textarea) {
+        textarea.style.height = 'auto';
+        textarea.style.height = textarea.scrollHeight + 'px';
+      }
 
-        request.onerror = (event) => {
-          console.error('IndexedDB 錯誤:', event);
-          reject(event);
-        };
+      const textarea1 = document.getElementById("textarea-1");
+      const textarea2 = document.getElementById("textarea-2");
+      const textarea3 = document.getElementById("textarea-3");
+      const text1 = document.getElementById("text-1");
+      const text2 = document.getElementById("text-2");
+      const text3 = document.getElementById("text-3");
+      const copyImageBtn = document.getElementById("copy-image-btn");
+      const colorInput = document.getElementById("color-input");
+      colorInput.value = "#754226";
+      text1.style.color = colorInput.value;
+      text2.style.color = colorInput.value;
+      text3.style.color = colorInput.value;
+      colorInput.addEventListener("input", function () {
+        text1.style.color = this.value;
+        text2.style.color = this.value;
+        text3.style.color = this.value;
+      });
 
-        request.onupgradeneeded = (event) => {
-          const db = event.target.result;
-          if (!db.objectStoreNames.contains('settings')) {
-            db.createObjectStore('settings', { keyPath: 'id' });
+      // 存儲顏色映射的對象
+      let colorMap = {};
+
+      // 解析顏色定義並建立映射
+      function parseColorDefinitions(text) {
+        const lines = text.split('\n');
+        colorMap = {};
+        lines.forEach(line => {
+          const [name, color] = line.split(':').map(s => s.trim());
+          if (name && color) {
+            colorMap[name] = color;
           }
-        };
+        });
+      }
 
-        request.onsuccess = (event) => {
-          const db = event.target.result;
-          resolve(db);
-        };
-      });
-    }
+      // 處理顏色標籤
+      function processColorTags(text) {
+        // 先處理自定義顏色標籤
+        Object.keys(colorMap).forEach(colorName => {
+          const colorValue = colorMap[colorName];
+          const regex = new RegExp(`<${colorName}>(.*?)</${colorName}>`, 'g');
+          text = text.replace(regex, `<span style="color: ${colorValue}">$1</span>`);
+        });
 
-    // 保存設定到 IndexedDB
-    function saveSettingsToDB(db, settings) {
-      return new Promise((resolve, reject) => {
-        const transaction = db.transaction(['settings'], 'readwrite');
-        const store = transaction.objectStore('settings');
-        const data = { id: 'appSettings', config: settings };
-        const request = store.put(data);
+        // 處理直接的十六進制顏色代碼
+        return text.replace(/<#([#a-zA-Z0-9]{3,6})>(.*?)<\/#\1>/g, '<span style="color: #$1">$2</span>');
+      }
 
-        request.onsuccess = () => {
-          resolve();
-        };
+      // 函數：更新顯示區域的文本內容
+      function updateTextElements(initial = false) {
+        // 更新顏色映射
+        parseColorDefinitions(textarea3.value);
 
-        request.onerror = (event) => {
-          console.error('保存設定失敗:', event);
-          reject(event);
-        };
-      });
-    }
+        const value1 = textarea1.value;
+        const value2 = textarea2.value;
 
-    // 從 IndexedDB 加載設定
-    function loadSettingsFromDB(db) {
-      return new Promise((resolve, reject) => {
-        const transaction = db.transaction(['settings'], 'readonly');
-        const store = transaction.objectStore('settings');
-        const request = store.get('appSettings');
+        // 處理顏色標籤
+        const processedValue1 = processColorTags(value1);
+        const processedValue2 = processColorTags(value2);
 
-        request.onsuccess = (event) => {
-          if (request.result) {
-            resolve(request.result.config);
-          } else {
-            resolve(null);
-          }
-        };
-
-        request.onerror = (event) => {
-          console.error('載入設定失敗:', event);
-          reject(event);
-        };
-      });
-    }
-
-    // 檢查文本是否包含中文字符
-    function containsChinese(text) {
-      const chineseRegex = /[\u4e00-\u9fff]/;
-      return chineseRegex.test(text);
-    }
-
-    // 轉義 HTML 標籤
-    function escapeHTML(text) {
-      const div = document.createElement('div');
-      div.appendChild(document.createTextNode(text));
-      return div.innerHTML;
-    }
-
-    // 將 <br> 轉換為換行符
-    function convertBrToNewline(text) {
-      return text.replace(/<br\s*\/?>/gi, '\n');
-    }
-
-    // 將換行符轉換為 <br>
-    function convertNewlinesToBr(text) {
-      return text.replace(/(?:\r\n|\r|\n)/g, '<br>');
-    }
-
-    // 防抖函數
-    function debounce(func, wait) {
-      let timeout;
-      return function (...args) {
-        clearTimeout(timeout);
-        timeout = setTimeout(() => func.apply(this, args), wait);
-      };
-    }
-
-    // 生成圖片並更新預覽
-    function generateImage() {
-      html2canvas(document.querySelector("#capture"), {
-        backgroundColor: null,
-        scale: 2
-      }).then((canvas) => {
-        const imgData = canvas.toDataURL("image/png");
-        const previewImage = document.getElementById('previewImage');
-        const imagePreview = document.getElementById('imagePreview');
-
-        if (imgData) {
-          previewImage.src = imgData;
-          imagePreview.classList.remove('hidden'); // 顯示預覽區域
+        if (initial) {
+          text1.innerHTML = processedValue1;
+          text2.innerHTML = processedValue1;
+          text3.innerHTML = processedValue1;
         } else {
-          previewImage.src = "";
-          imagePreview.classList.add('hidden'); // 隱藏預覽區域
+          text1.innerHTML = processedValue1;
+          text2.innerHTML = processedValue1;
+          text3.innerHTML = processedValue2;
         }
+      }
 
-        // 複製圖片到剪貼簿
-        fetch(imgData)
-          .then(res => res.blob())
-          .then(blob => {
+      // 初始化同步
+      textarea3.value = `red: #f24f24
+blue: #24bbf2
+green: #24f265`;
+
+      textarea1.value = `銀<blue>行</blue>
+<red>重</red>年
+牛仔褲`;
+
+      textarea2.value = `銀<red>航</red>
+<red>蟲</red>年
+牛<red>崽</red>褲`;
+
+      updateTextElements();
+      autoResizeTextarea(textarea1);
+      autoResizeTextarea(textarea2);
+      autoResizeTextarea(textarea3);
+
+      // 當 textarea1 有變動時
+      textarea1.addEventListener("input", function () {
+        textarea2.value = textarea1.value;
+        updateTextElements();
+        autoResizeTextarea(textarea1);
+        autoResizeTextarea(textarea2);
+        autoResizeTextarea(textarea3);
+      });
+
+      // 當 textarea2 有變動時
+      textarea2.addEventListener("input", function () {
+        updateTextElements();
+        autoResizeTextarea(textarea1);
+        autoResizeTextarea(textarea2);
+        autoResizeTextarea(textarea3);
+      });
+
+      // 當 textarea3 有變動時
+      textarea3.addEventListener("input", function () {
+        updateTextElements();
+        autoResizeTextarea(textarea1);
+        autoResizeTextarea(textarea2);
+        autoResizeTextarea(textarea3);
+      });
+
+      // 複製圖片到剪貼簿
+      copyImageBtn.addEventListener("click", function () {
+        html2canvas(document.querySelector("#capture")).then(canvas => {
+          canvas.toBlob(function (blob) {
             const item = new ClipboardItem({ "image/png": blob });
-            navigator.clipboard.write([item]).then(() => {
-              console.log('圖片已複製到剪貼簿');
-            }).catch(err => {
-              console.error('無法複製圖片到剪貼簿:', err);
+            navigator.clipboard.write([item]).then(function () {
+              alert("圖片已成功複製到剪貼簿！");
+            }, function (err) {
+              console.error("複製圖片失敗: ", err);
+              alert("無法複製圖片到剪貼簿。請檢查瀏覽器是否支援此功能。");
             });
           });
-      }).catch((error) => {
-        console.error('生成圖片時出錯:', error);
-        document.getElementById('imagePreview').classList.add('hidden'); // 發生錯誤時隱藏預覽區域
+        }).catch(function (error) {
+          console.error("截圖失敗: ", error);
+          alert("截圖失敗，請檢查瀏覽器控制台以獲取更多資訊。");
+        });
       });
-    }
-
-    const debouncedGenerateImage = debounce(generateImage, 500);
-
-    function isClipboardSupported() {
-      return navigator.clipboard && navigator.clipboard.write && navigator.clipboard.readText;
-    }
-
-    function readFromClipboard() {
-      if (!isClipboardSupported()) {
-        alert('您的瀏覽器不支持讀取剪貼簿的功能。');
-        return;
-      }
-
-      navigator.clipboard.readText().then(text => {
-        if (text) {
-          if (text.length > 500) {
-            text = text.slice(0, 500);
-            document.getElementById('warningMessage').style.display = 'block';
-          } else {
-            document.getElementById('warningMessage').style.display = 'none';
-          }
-
-          // 將 <br> 轉換為換行符
-          text = convertBrToNewline(text);
-
-          if (containsChinese(text)) {
-            const escapedText = escapeHTML(text);
-            const formattedText = convertNewlinesToBr(escapedText);
-            document.getElementById('textInput').value = text; // 使用轉換後的換行符
-            document.getElementById('capture').innerHTML = formattedText;
-            generateImage();
-          } else {
-            console.log('剪貼簿中的文字不包含中文字符，未自動帶入。');
-            document.getElementById('imagePreview').classList.add('hidden'); // 沒有中文字符時隱藏預覽區域
-          }
-        } else {
-          console.log('剪貼簿中沒有文字');
-          // 當剪貼簿為空時，顯示提示訊息
-          const emptyMessage = `目前剪貼簿內沒有複製任何文字，
-請複製文字後重整頁面或直接輸入文字。`;
-          document.getElementById('textInput').value = emptyMessage;
-          document.getElementById('capture').innerHTML = convertNewlinesToBr(escapeHTML(emptyMessage));
-          document.getElementById('imagePreview').classList.add('hidden'); // 無文字時隱藏預覽區域
-        }
-      }).catch(err => {
-        console.error('讀取剪貼簿時出錯:', err);
-        document.getElementById('imagePreview').classList.add('hidden'); // 讀取錯誤時隱藏預覽區域
-      });
-    }
-
-    document.addEventListener('DOMContentLoaded', async function () {
-      try {
-        const db = await initDB();
-        const savedSettings = await loadSettingsFromDB(db);
-
-        let lineHeight = '1.5';
-        let letterSpacing = '1.5';
-        let fontSize = '32';
-        let textColor = '#754226';
-        let textContent = '';
-        let fontFamily = "'BpmfZihiSans-Regular'";
-
-        if (savedSettings) {
-          lineHeight = savedSettings.lineHeight || lineHeight;
-          letterSpacing = savedSettings.letterSpacing || letterSpacing;
-          fontSize = savedSettings.fontSize || fontSize;
-          textColor = savedSettings.textColor || textColor;
-          textContent = savedSettings.textContent || textContent;
-          fontFamily = savedSettings.fontFamily || fontFamily;
-        }
-
-        document.getElementById('lineHeightInput').value = lineHeight;
-        document.getElementById('letterSpacingInput').value = letterSpacing;
-        document.getElementById('fontSizeInput').value = fontSize;
-        document.getElementById('colorPicker').value = textColor;
-        document.getElementById('textInput').value = textContent;
-        document.getElementById('fontSelect').value = fontFamily;
-
-        document.getElementById('capture').style.lineHeight = lineHeight;
-        document.getElementById('capture').style.letterSpacing = letterSpacing + 'px';
-        document.getElementById('capture').style.fontSize = fontSize + 'px';
-        document.getElementById('capture').style.color = textColor;
-        document.getElementById('capture').style.fontFamily = fontFamily;
-        document.getElementById('capture').innerHTML = convertNewlinesToBr(escapeHTML(textContent)) || '請輸入文字 ...';
-
-        // 初始化時從剪貼簿讀取
-        readFromClipboard();
-
-        // 根據是否有圖片顯示或隱藏預覽區域
-        const previewImage = document.getElementById('previewImage');
-        const imagePreview = document.getElementById('imagePreview');
-        if (previewImage.src && previewImage.src !== "") {
-          imagePreview.classList.remove('hidden');
-        } else {
-          imagePreview.classList.add('hidden');
-        }
-
-        // 輸入事件監聽器
-        const inputs = ['lineHeightInput', 'letterSpacingInput', 'fontSizeInput', 'colorPicker', 'textInput', 'fontSelect'];
-        inputs.forEach(id => {
-          document.getElementById(id).addEventListener('input', () => {
-            const lineHeightValue = document.getElementById('lineHeightInput').value;
-            const letterSpacingValue = document.getElementById('letterSpacingInput').value;
-            const fontSizeValue = document.getElementById('fontSizeInput').value;
-            const colorValue = document.getElementById('colorPicker').value;
-            let textValue = document.getElementById('textInput').value || '請輸入文字 ...';
-            const fontFamilyValue = document.getElementById('fontSelect').value;
-
-            // 檢查字元數是否超過500
-            if (textValue.length > 500) {
-              textValue = textValue.slice(0, 500);
-              document.getElementById('textInput').value = textValue;
-              document.getElementById('warningMessage').style.display = 'block';
-            } else {
-              document.getElementById('warningMessage').style.display = 'none';
-            }
-
-            // 更新 capture 區塊
-            const escapedText = escapeHTML(textValue);
-            const formattedText = convertNewlinesToBr(escapedText);
-            document.getElementById('capture').innerHTML = formattedText;
-
-            // 更新樣式
-            document.getElementById('capture').style.lineHeight = lineHeightValue;
-            document.getElementById('capture').style.letterSpacing = letterSpacingValue + 'px';
-            document.getElementById('capture').style.fontSize = fontSizeValue + 'px';
-            document.getElementById('capture').style.color = colorValue;
-            document.getElementById('capture').style.fontFamily = fontFamilyValue;
-
-            if (textValue.trim() === '') {
-              document.getElementById('imagePreview').classList.add('hidden'); // 無文字時隱藏預覽區域
-            } else {
-              debouncedGenerateImage();
-            }
-
-            // 保存設定
-            const currentSettings = {
-              lineHeight: lineHeightValue,
-              letterSpacing: letterSpacingValue,
-              fontSize: fontSizeValue,
-              textColor: colorValue,
-              textContent: textValue,
-              fontFamily: fontFamilyValue
-            };
-            saveSettingsToDB(db, currentSettings);
-          });
-        });
-
-        // 下載圖片按鈕
-        document.getElementById('btnScreenShot').addEventListener('click', () => {
-          html2canvas(document.querySelector("#capture"), {
-            backgroundColor: null,
-            scale: 2
-          }).then((canvas) => {
-            let a = document.createElement("a");
-            a.href = canvas.toDataURL("image/png", 1.0);
-            a.download = (document.getElementById('capture').innerText.trim() || "注音圖") + ".png";
-            a.click();
-          });
-        });
-
-        // 從剪貼簿讀取按鈕
-        document.getElementById('btnReadClipboard').addEventListener('click', readFromClipboard);
-
-        // 重置設定按鈕
-        document.getElementById('btnResetSettings').addEventListener('click', () => {
-          const transaction = db.transaction(['settings'], 'readwrite');
-          const store = transaction.objectStore('settings');
-          const request = store.delete('appSettings');
-
-          request.onsuccess = () => {
-            alert('設定已重置');
-            document.getElementById('imagePreview').classList.add('hidden'); // 重置後隱藏預覽區域
-            location.reload();
-          };
-
-          request.onerror = (event) => {
-            console.error('重置設定失敗:', event);
-          };
-        });
-      } catch (error) {
-        console.error('初始化過程中出錯:', error);
-      }
     });
   </script>
 </body>
