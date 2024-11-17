@@ -131,39 +131,38 @@ document.addEventListener('DOMContentLoaded', function () {
 
       // 如果是 text3，檢查每個字符
       if (elementId === 'text-3') {
-        let newLine = '';
-        let inTag = false;
+        // 先處理 <r> 標籤
+        const rTagRegex = /<r>(.*?)<\/r>/g;
+        let taggedLine = processedLine;
+        const tags = [];
+        let index = 0;
 
-        for (let i = 0; i < processedLine.length; i++) {
-          const char = processedLine[i];
+        // 將所有 <r> 標籤內容保存起來，並用佔位符替換
+        taggedLine = processedLine.replace(rTagRegex, (match, content) => {
+          const placeholder = `__TAG${index}__`;
+          tags.push({ placeholder, content: match });
+          index++;
+          return placeholder;
+        });
 
-          // 處理標籤
-          if (char === '<') {
-            inTag = true;
-            newLine += char;
-            continue;
-          }
-          if (char === '>') {
-            inTag = false;
-            newLine += char;
-            continue;
-          }
-          if (inTag) {
-            newLine += char;
-            continue;
-          }
+        // 處理非標籤文字
+        const processedChars = taggedLine
+          .split('')
+          .map((char) => {
+            const isChinese = /[\u4e00-\u9fa5]/.test(char);
+            const isVariant = /[\uE0100-\uE01EF]/.test(char);
+            const isPlaceholder = char.startsWith('_');
+            return isPlaceholder || isChinese || isVariant ? char : '　';
+          })
+          .join('');
 
-          // 檢查是否為中文字或異讀字
-          const isChinese = /[\u4e00-\u9fa5]/.test(char);
-          const isVariant = /[\uE0100-\uE01EF]/.test(char);
+        // 新增：處理連續的全形空白
+        processedLine = processedChars.replace(/　+/g, '　');
 
-          if (isChinese || isVariant) {
-            newLine += char;
-          } else {
-            newLine += '　'; // 全形空格
-          }
-        }
-        processedLine = newLine;
+        // 還原標籤
+        tags.forEach(({ placeholder, content }) => {
+          processedLine = processedLine.replace(placeholder, content);
+        });
       }
 
       Object.keys(styleMap).forEach((styleName) => {
@@ -206,7 +205,20 @@ document.addEventListener('DOMContentLoaded', function () {
       return `<p>${processedLine}</p>`;
     });
 
-    return lines.join('');
+    let result = lines.join('');
+
+    // 如果是 text-3，合併最後兩個 <p> 標籤
+    if (elementId === 'text-3') {
+      const matches = result.match(/<p>.*?<\/p>/g);
+      if (matches && matches.length >= 2) {
+        const lastTwo = matches.slice(-2);
+        const merged = lastTwo[0].slice(0, -4) + lastTwo[1].slice(3); // 移除第一個的結束標籤和第二個的開始標籤
+        result =
+          result.slice(0, -(lastTwo[0].length + lastTwo[1].length)) + merged;
+      }
+    }
+
+    return result;
   }
 
   function updateTextElements(initial = false) {
