@@ -259,32 +259,20 @@ color: #f23924`;
 牛<r>崽</r>褲`;
 
   updateTextElements(true);
-  autoResizeTextarea(textarea1);
-  autoResizeTextarea(textarea2);
-  autoResizeTextarea(textarea3);
 
   textarea1.addEventListener('input', function () {
     textarea2.value = textarea1.value;
     updateTextElements();
-    autoResizeTextarea(textarea1);
-    autoResizeTextarea(textarea2);
-    autoResizeTextarea(textarea3);
     debouncedCapture();
   });
 
   textarea2.addEventListener('input', function () {
     updateTextElements();
-    autoResizeTextarea(textarea1);
-    autoResizeTextarea(textarea2);
-    autoResizeTextarea(textarea3);
     debouncedCapture();
   });
 
   textarea3.addEventListener('input', function () {
     updateTextElements();
-    autoResizeTextarea(textarea1);
-    autoResizeTextarea(textarea2);
-    autoResizeTextarea(textarea3);
     debouncedCapture();
   });
 
