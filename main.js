@@ -1,4 +1,25 @@
 document.addEventListener('DOMContentLoaded', function () {
+  const boldBtn = document.getElementById('bold-btn');
+
+  boldBtn.addEventListener('click', function () {
+    const textarea = document.getElementById('textarea-1');
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+    const selectedText = textarea.value.substring(start, end);
+
+    if (selectedText) {
+      const newText =
+        textarea.value.substring(0, start) +
+        `<r>${selectedText}</r>` +
+        textarea.value.substring(end);
+
+      textarea.value = newText;
+      textarea2.value = newText; // 同步更新 textarea-2
+      updateTextElements();
+      debouncedCapture();
+    }
+  });
+
   function debounce(func, wait) {
     let timeout;
     return function executedFunction(...args) {
