@@ -1,24 +1,14 @@
 document.addEventListener('DOMContentLoaded', function () {
-  const boldBtn = document.getElementById('bold-btn');
-
-  boldBtn.addEventListener('click', function () {
-    const textarea = document.getElementById('textarea-1');
-    const start = textarea.selectionStart;
-    const end = textarea.selectionEnd;
-    const selectedText = textarea.value.substring(start, end);
-
-    if (selectedText) {
-      const newText =
-        textarea.value.substring(0, start) +
-        `<r>${selectedText}</r>` +
-        textarea.value.substring(end);
-
-      textarea.value = newText;
-      textarea2.value = newText; // 同步更新 textarea-2
-      updateTextElements();
-      debouncedCapture();
+  // 基礎工具函式
+  function cmToPx(cm, dpi = 72) {
+    if (typeof cm !== 'number' || isNaN(cm)) {
+      throw new TypeError('輸入的公分值必須是一個有效的數字。');
     }
-  });
+    if (typeof dpi !== 'number' || isNaN(dpi) || dpi <= 0) {
+      throw new TypeError('DPI 必須是一個大於零的有效數字。');
+    }
+    return cm * (dpi / 2.54);
+  }
 
   function debounce(func, wait) {
     let timeout;
@@ -46,31 +36,26 @@ document.addEventListener('DOMContentLoaded', function () {
     }, 3000);
   }
 
-  function autoResizeTextarea(textarea) {
-    textarea.style.height = 'auto';
-    textarea.style.height = textarea.scrollHeight + 'px';
-  }
-
+  // 取得所有需要的元素
+  const copyImageBtn = document.getElementById('copy-image-btn');
+  const downloadImageBtn = document.getElementById('download-image-btn');
+  const boldBtn = document.getElementById('bold-btn');
   const textarea1 = document.getElementById('textarea-1');
   const textarea2 = document.getElementById('textarea-2');
   const textarea3 = document.getElementById('textarea-3');
   const text1 = document.getElementById('text-1');
   const text2 = document.getElementById('text-2');
   const text3 = document.getElementById('text-3');
-  const copyImageBtn = document.getElementById('copy-image-btn');
   const colorInput = document.getElementById('color-input');
+  const captureElement = document.getElementById('capture');
 
+  // 初始化顏色和樣式
   colorInput.value = '#754226';
   text1.style.color = colorInput.value;
   text2.style.color = colorInput.value;
   text3.style.color = colorInput.value;
 
-  colorInput.addEventListener('input', function () {
-    text1.style.color = this.value;
-    text2.style.color = this.value;
-    text3.style.color = this.value;
-  });
-
+  // 樣式處理相關函式
   let styleMap = {};
 
   function parseColorDefinitions(text) {
@@ -124,20 +109,16 @@ document.addEventListener('DOMContentLoaded', function () {
     lines = lines.map((line) => {
       let processedLine = line;
 
-      // 如果是 text2，將 ... 替換為 …
       if (elementId === 'text-2') {
         processedLine = processedLine.replace(/\.\.\./g, '…');
       }
 
-      // 如果是 text3，檢查每個字符
       if (elementId === 'text-3') {
-        // 先處理 <r> 標籤
         const rTagRegex = /<r>(.*?)<\/r>/g;
         let taggedLine = processedLine;
         const tags = [];
         let index = 0;
 
-        // 將所有 <r> 標籤內容保存起來，並用佔位符替換
         taggedLine = processedLine.replace(rTagRegex, (match, content) => {
           const placeholder = `__TAG${index}__`;
           tags.push({ placeholder, content: match });
@@ -145,7 +126,6 @@ document.addEventListener('DOMContentLoaded', function () {
           return placeholder;
         });
 
-        // 處理非標籤文字
         const processedChars = taggedLine
           .split('')
           .map((char) => {
@@ -156,10 +136,8 @@ document.addEventListener('DOMContentLoaded', function () {
           })
           .join('');
 
-        // 新增：處理連續的全形空白
         processedLine = processedChars.replace(/　+/g, '　');
 
-        // 還原標籤
         tags.forEach(({ placeholder, content }) => {
           processedLine = processedLine.replace(placeholder, content);
         });
@@ -207,12 +185,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
     let result = lines.join('');
 
-    // 如果是 text-3，合併最後兩個 <p> 標籤
     if (elementId === 'text-3') {
       const matches = result.match(/<p>.*?<\/p>/g);
       if (matches && matches.length >= 2) {
         const lastTwo = matches.slice(-2);
-        const merged = lastTwo[0].slice(0, -4) + lastTwo[1].slice(3); // 移除第一個的結束標籤和第二個的開始標籤
+        const merged = lastTwo[0].slice(0, -4) + lastTwo[1].slice(3);
         result =
           result.slice(0, -(lastTwo[0].length + lastTwo[1].length)) + merged;
       }
@@ -221,48 +198,64 @@ document.addEventListener('DOMContentLoaded', function () {
     return result;
   }
 
-  function updateTextElements(initial = false) {
-    styleMap = parseColorDefinitions(textarea3.value);
-    const value1 = textarea1.value;
-    const value2 = textarea2.value;
+  // 圖片處理相關函式
+  async function captureImage() {
+    return html2canvas(captureElement, {
+      scale: 4,
+      backgroundColor: null,
+    });
+  }
 
-    if (initial) {
-      text1.innerHTML = processColorTags(value1, false, 'text-1');
-      text2.innerHTML = processColorTags(value1, false, 'text-2');
-      text3.innerHTML = processColorTags(value1, false, 'text-3');
-    } else {
-      text1.innerHTML = processColorTags(value1, false, 'text-1');
-      text2.innerHTML = processColorTags(value1, false, 'text-2');
-      text3.innerHTML = processColorTags(value1, false, 'text-3');
+  function getTargetHeight() {
+    const text2Content = document.getElementById('text-2').innerHTML;
+    const lineCount = (text2Content.match(/<p>/g) || []).length;
+
+    switch (lineCount) {
+      case 1:
+        return 0.93;
+      case 2:
+        return 1.69;
+      case 3:
+        return 2.42;
+      case 4:
+        return 3.15;
+      case 5:
+        return 3.9;
+      case 6:
+        return 5.14;
+      default:
+        return 5.14;
     }
   }
 
-  async function captureAndCopyImage() {
-    try {
-      window.focus();
-      const canvas = await html2canvas(document.querySelector('#capture'), {
-        scale: 4,
-        backgroundColor: null,
-      });
+  function resizeCanvas(canvas) {
+    const targetHeightCm = getTargetHeight();
+    const targetHeightPx = cmToPx(targetHeightCm, 72) * 4;
+    const scale = targetHeightPx / canvas.height;
+    const targetWidthPx = canvas.width * scale;
 
-      canvas.toBlob(async (blob) => {
-        if (!blob) {
-          throw new Error('Canvas is empty');
-        }
+    const resizedCanvas = document.createElement('canvas');
+    resizedCanvas.width = targetWidthPx;
+    resizedCanvas.height = targetHeightPx;
+    const ctx = resizedCanvas.getContext('2d');
+    ctx.drawImage(canvas, 0, 0, targetWidthPx, targetHeightPx);
+
+    return resizedCanvas;
+  }
+
+  async function copyImage() {
+    try {
+      const canvas = await captureImage();
+      const resizedCanvas = resizeCanvas(canvas);
+
+      resizedCanvas.toBlob(async (blob) => {
         try {
           const item = new ClipboardItem({ 'image/png': blob });
           await navigator.clipboard.write([item]);
           showFloatingAlert('圖片已成功複製到剪貼簿！');
         } catch (error) {
           console.error('複製到剪貼簿失敗:', error);
-          const url = URL.createObjectURL(blob);
-          const a = document.createElement('a');
-          a.href = url;
-          a.download = 'image.png';
-          document.body.appendChild(a);
-          a.click();
-          document.body.removeChild(a);
-          URL.revokeObjectURL(url);
+          downloadImageFromBlob(blob);
           showFloatingAlert('無法直接複製到剪貼簿，已自動下載圖片。');
         }
       }, 'image/png');
@@ -272,8 +265,44 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   }
 
-  const debouncedCapture = debounce(captureAndCopyImage, 500);
+  async function downloadImage() {
+    try {
+      const canvas = await captureImage();
+      const resizedCanvas = resizeCanvas(canvas);
 
+      resizedCanvas.toBlob((blob) => {
+        downloadImageFromBlob(blob);
+        showFloatingAlert('圖片已成功下載！');
+      }, 'image/png');
+    } catch (error) {
+      console.error('下載失敗:', error);
+      showFloatingAlert('下載失敗，請檢查瀏覽器控制台以獲取更多資訊。');
+    }
+  }
+
+  function downloadImageFromBlob(blob) {
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'image.png';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }
+
+  // 更新文字元素
+  function updateTextElements(initial = false) {
+    styleMap = parseColorDefinitions(textarea3.value);
+    const value1 = textarea1.value;
+    const value2 = textarea2.value;
+
+    text1.innerHTML = processColorTags(value1, false, 'text-1');
+    text2.innerHTML = processColorTags(value1, false, 'text-2');
+    text3.innerHTML = processColorTags(value1, false, 'text-3');
+  }
+
+  // 初始化文字內容
   textarea3.value = `#text-2 r:
 color: #f23924
 font-family: 'NotoSansTC-Medium'
@@ -286,12 +315,41 @@ color: #f23924`;
 重年
 牛仔褲`;
 
-  textarea2.value = `一󠇡<r>個󠇡</r>
-銀<r>航</r>
-蟲年
-牛<r>崽</r>褲`;
+  textarea2.value = textarea1.value;
 
+  // 更新初始狀態
   updateTextElements(true);
+
+  // 事件監聽器
+  const debouncedCapture = debounce(copyImage, 500);
+
+  copyImageBtn.addEventListener('click', copyImage);
+  downloadImageBtn.addEventListener('click', downloadImage);
+
+  colorInput.addEventListener('input', function () {
+    text1.style.color = this.value;
+    text2.style.color = this.value;
+    text3.style.color = this.value;
+  });
+
+  boldBtn.addEventListener('click', function () {
+    const textarea = document.getElementById('textarea-1');
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+    const selectedText = textarea.value.substring(start, end);
+
+    if (selectedText) {
+      const newText =
+        textarea.value.substring(0, start) +
+        `<r>${selectedText}</r>` +
+        textarea.value.substring(end);
+
+      textarea.value = newText;
+      textarea2.value = newText;
+      updateTextElements();
+      debouncedCapture();
+    }
+  });
 
   textarea1.addEventListener('input', function () {
     textarea2.value = textarea1.value;
@@ -307,9 +365,5 @@ color: #f23924`;
   textarea3.addEventListener('input', function () {
     updateTextElements();
     debouncedCapture();
-  });
-
-  copyImageBtn.addEventListener('click', async function () {
-    await captureAndCopyImage();
   });
 });
