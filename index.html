@@ -15,13 +15,42 @@
 
     @font-face {
       font-family: 'NotoSansTC-Medium';
-      src: url('./font/Noto_Sans_TC/static/NotoSansTC-Medium.ttf') format("truetype");
+      src: url('./font/Noto_Sans_TC/static/NotoSansTC-Regular.ttf') format("truetype");
     }
 
     /* 保持顯示格式 */
     #capture div {
       white-space: pre-wrap;
       /* 保留空白字符和換行 */
+    }
+
+    /* 確保 #capture 及其父元素沒有背景顏色 */
+    #capture {
+      background-color: transparent;
+      /* 設置為透明 */
+      padding: 5px 10px 5px 5px;
+    }
+
+    .floating-alert {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      z-index: 1050;
+      display: none;
+    }
+
+    .fade-out {
+      animation: fadeOut 0.5s ease-in-out forwards;
+    }
+
+    @keyframes fadeOut {
+      from {
+        opacity: 1;
+      }
+
+      to {
+        opacity: 0;
+      }
     }
   </style>
 </head>
@@ -31,6 +60,11 @@
     <div class="row mb-3">
       <div class="col">
         <h1 class="fs-3">歡迎使用文字轉注音圖片服務！</h1>
+      </div>
+    </div>
+    <div class="row mb-3">
+      <div class="col">
+        <iframe src="https://buttaiwan.github.io/bpmfvs/" frameborder="0" style="height: 500px; width: 100%;"></iframe>
       </div>
     </div>
     <div class="row mb-3">
@@ -59,41 +93,45 @@
         <div class="input-group mb-3">
           <button id="copy-image-btn" class="btn btn-primary w-100">複製圖片到剪貼簿</button>
         </div>
-        <div id="capture" class="border position-relative d-inline-block" style="padding: 5px 10px 5px 5px;">
+        <div id="capture" class="position-relative d-inline-block" style="padding: 5px 10px 5px 5px;">
           <div id="text-1" class="position-relative" style="
             margin: 0;
             overflow: hidden;
             font-size: 36px;
-            letter-spacing: 22px;
+            letter-spacing: 24px;
             line-height: 1.3;
             color: #754226;
             top: 0; 
             visibility: hidden;
-            font-family: 'NotoSansTC-Medium';">
+            font-family: Arial, 'NotoSansTC-Medium';">
           </div>
           <div id="text-2" class="position-absolute" style="
             overflow: hidden;
             font-size: 36px;
-            letter-spacing: 22px;
+            letter-spacing: 24px;
             line-height: 1.3;
             color: #754226;
             top: 0; 
             left: 10px; 
             width: 100%;
-            font-family: 'NotoSansTC-Medium';">
+            font-family: Arial, 'NotoSansTC-Medium';">
           </div>
           <div id="text-3" class="position-absolute" style="
             font-size: 36px;
-            letter-spacing: 22px;
+            letter-spacing: 24px;
             line-height: 1.3;
             color: #754226;
             top: 2px;
-            left: 36px; 
+            left: 34px; 
             width: 100%;
-            font-family: 'BpmfZihiOnly-R';">
+            font-weight: 100;
+            font-family: Arial, 'BpmfZihiOnly-R';">
           </div>
         </div>
       </div>
+    </div>
+    <div class="alert alert-success floating-alert" role="alert">
+      圖片已成功複製到剪貼簿！
     </div>
   </div>
 
@@ -108,7 +146,38 @@
     integrity="sha384-0pUGZvbkm6XF6gxjEnlmuGrJXVbNuzT9qBBavbLwCsOGabYfZo0T0to5eqruptLy"
     crossorigin="anonymous"></script>
   <script>
+
     document.addEventListener("DOMContentLoaded", function () {
+      // Debounce 函數
+      function debounce(func, wait) {
+        let timeout;
+        return function executedFunction(...args) {
+          const later = () => {
+            clearTimeout(timeout);
+            func(...args);
+          };
+          clearTimeout(timeout);
+          timeout = setTimeout(later, wait);
+        };
+      }
+
+      function showFloatingAlert(message) {
+        const alertElement = document.querySelector('.floating-alert');
+        alertElement.textContent = message;
+        alertElement.style.display = 'block';
+
+        // 3秒後開始淡出
+        setTimeout(() => {
+          alertElement.classList.add('fade-out');
+
+          // 淡出動畫完成後隱藏元素
+          setTimeout(() => {
+            alertElement.style.display = 'none';
+            alertElement.classList.remove('fade-out');
+          }, 500);
+        }, 3000);
+      }
+
       // 取得 DOM 元素
       function autoResizeTextarea(textarea) {
         textarea.style.height = 'auto';
@@ -123,10 +192,13 @@
       const text3 = document.getElementById("text-3");
       const copyImageBtn = document.getElementById("copy-image-btn");
       const colorInput = document.getElementById("color-input");
+
+      // 初始化顏色設定
       colorInput.value = "#754226";
       text1.style.color = colorInput.value;
       text2.style.color = colorInput.value;
       text3.style.color = colorInput.value;
+
       colorInput.addEventListener("input", function () {
         text1.style.color = this.value;
         text2.style.color = this.value;
@@ -148,30 +220,36 @@
         });
       }
 
-      // 處理顏色標籤
-      function processColorTags(text) {
-        // 先處理自定義顏色標籤
+      // 定義中文字符的正則表達式
+      const chineseCharRegex = /[^\u4E00-\u9FFF\u3400-\u4DBF\uF900-\uFAFF\u20000-\u2A6DF]/g;
+
+      // 處理顏色標籤並替換非中文字符為空格
+      function processColorTags(text, isText2 = false) {
+        if (isText2) {
+          text = text.replace(chineseCharRegex, '　');
+          text = text.replace('...', '');
+        }
+
+        if (!isText2) {
+          text = text.replace('...', '…');
+        }
+
         Object.keys(colorMap).forEach(colorName => {
           const colorValue = colorMap[colorName];
           const regex = new RegExp(`<${colorName}>(.*?)</${colorName}>`, 'g');
           text = text.replace(regex, `<span style="color: ${colorValue}">$1</span>`);
         });
 
-        // 處理直接的十六進制顏色代碼
         return text.replace(/<#([#a-zA-Z0-9]{3,6})>(.*?)<\/#\1>/g, '<span style="color: #$1">$2</span>');
       }
 
-      // 函數：更新顯示區域的文本內容
+      // 更新顯示區域的文本內容
       function updateTextElements(initial = false) {
-        // 更新顏色映射
         parseColorDefinitions(textarea3.value);
-
         const value1 = textarea1.value;
         const value2 = textarea2.value;
-
-        // 處理顏色標籤
         const processedValue1 = processColorTags(value1);
-        const processedValue2 = processColorTags(value2);
+        const processedValue2 = processColorTags(value2, true);
 
         if (initial) {
           text1.innerHTML = processedValue1;
@@ -184,70 +262,94 @@
         }
       }
 
-      // 初始化同步
+      // 捕捉圖片並複製到剪貼簿
+      async function captureAndCopyImage() {
+        try {
+          window.focus();
+          const canvas = await html2canvas(document.querySelector("#capture"), {
+            scale: 2,
+            backgroundColor: null
+          });
+
+          canvas.toBlob(async (blob) => {
+            if (!blob) {
+              throw new Error("Canvas is empty");
+            }
+            try {
+              const item = new ClipboardItem({ "image/png": blob });
+              await navigator.clipboard.write([item]);
+              showFloatingAlert("圖片已成功複製到剪貼簿！");
+            } catch (error) {
+              console.error("複製到剪貼簿失敗:", error);
+              const url = URL.createObjectURL(blob);
+              const a = document.createElement('a');
+              a.href = url;
+              a.download = 'image.png';
+              document.body.appendChild(a);
+              a.click();
+              document.body.removeChild(a);
+              URL.revokeObjectURL(url);
+              showFloatingAlert("無法直接複製到剪貼簿，已自動下載圖片。");
+            }
+          }, "image/png");
+        } catch (error) {
+          console.error("截圖失敗:", error);
+          showFloatingAlert("截圖失敗，請檢查瀏覽器控制台以獲取更多資訊。");
+        }
+      }
+
+      // 建立防抖後的捕捉函數
+      const debouncedCapture = debounce(captureAndCopyImage, 500);
+
+      // 初始化
       textarea3.value = `red: #f24f24
 blue: #24bbf2
 green: #24f265`;
 
       textarea1.value = `銀<blue>行</blue>
-<red>重</red>年
+重年
 牛仔褲`;
 
       textarea2.value = `銀<red>航</red>
-<red>蟲</red>年
+蟲年
 牛<red>崽</red>褲`;
 
-      updateTextElements();
+      updateTextElements(true);
       autoResizeTextarea(textarea1);
       autoResizeTextarea(textarea2);
       autoResizeTextarea(textarea3);
 
-      // 當 textarea1 有變動時
+      // 事件監聽器
       textarea1.addEventListener("input", function () {
         textarea2.value = textarea1.value;
         updateTextElements();
         autoResizeTextarea(textarea1);
         autoResizeTextarea(textarea2);
         autoResizeTextarea(textarea3);
+        debouncedCapture();
       });
 
-      // 當 textarea2 有變動時
       textarea2.addEventListener("input", function () {
         updateTextElements();
         autoResizeTextarea(textarea1);
         autoResizeTextarea(textarea2);
         autoResizeTextarea(textarea3);
+        debouncedCapture();
       });
 
-      // 當 textarea3 有變動時
       textarea3.addEventListener("input", function () {
         updateTextElements();
         autoResizeTextarea(textarea1);
         autoResizeTextarea(textarea2);
         autoResizeTextarea(textarea3);
+        debouncedCapture();
       });
 
-      // 複製圖片到剪貼簿
-      copyImageBtn.addEventListener("click", function () {
-        html2canvas(document.querySelector("#capture"), { 
-            scale: 2,
-            backgroundColor: null 
-          }).then(canvas => {
-          canvas.toBlob(function (blob) {
-            const item = new ClipboardItem({ "image/png": blob });
-            navigator.clipboard.write([item]).then(function () {
-              alert("圖片已成功複製到剪貼簿！");
-            }, function (err) {
-              console.error("複製圖片失敗: ", err);
-              alert("無法複製圖片到剪貼簿。請檢查瀏覽器是否支援此功能。");
-            });
-          });
-        }).catch(function (error) {
-          console.error("截圖失敗: ", error);
-          alert("截圖失敗，請檢查瀏覽器控制台以獲取更多資訊。");
-        });
+      // 複製按鈕事件
+      copyImageBtn.addEventListener("click", async function () {
+        await captureAndCopyImage();
       });
-    });
+    });  
   </script>
 </body>
 
