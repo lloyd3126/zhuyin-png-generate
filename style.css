@@ -1,0 +1,100 @@
+@font-face {
+    font-family: 'BpmfZihiOnly-R';
+    src: url('./font/BpmfSpecial/BpmfZihiOnly-R.ttf') format("truetype");
+}
+
+@font-face {
+    font-family: 'NotoSansTC-Regular';
+    src: url('./font/Noto_Sans_TC/static/NotoSansTC-Regular.ttf') format("truetype");
+}
+
+@font-face {
+    font-family: 'NotoSansTC-Medium';
+    src: url('./font/Noto_Sans_TC/static/NotoSansTC-Medium.ttf') format("truetype");
+}
+
+#capture div {
+    white-space: pre-wrap;
+}
+
+#capture {
+    background-color: transparent;
+    padding: 5px 10px 5px 5px;
+}
+
+.floating-alert {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 1050;
+    display: none;
+}
+
+.fade-out {
+    animation: fadeOut 0.5s ease-in-out forwards;
+}
+
+@keyframes fadeOut {
+    from {
+        opacity: 1;
+    }
+    to {
+        opacity: 0;
+    }
+}
+
+/* iframe 樣式 */
+iframe {
+    height: 500px;
+    width: 100%;
+}
+
+/* textarea 樣式 */
+textarea.form-control {
+    overflow: hidden;
+}
+
+/* 文字區塊共同樣式 */
+.text-block {
+    font-size: 34px;
+    letter-spacing: 22px;
+    color: #754226;
+    font-family: Arial, 'NotoSansTC-Regular';
+}
+
+/* text-1 特定樣式 */
+#text-1 {
+    margin: 0;
+    overflow: hidden;
+    visibility: hidden;
+}
+
+/* text-2 特定樣式 */
+#text-2 {
+    position: absolute;
+    overflow: hidden;
+    top: 0;
+    left: 10px;
+    width: 100%;
+}
+
+
+/* text-3 特定樣式 */
+#text-3 {
+    position: absolute;
+    top: 0px;
+    left: 34px;
+    width: 100%;
+    font-family: Arial, 'BpmfZihiOnly-R';
+}
+
+#text-1 *,#text-2 *,#text-3 *{
+    height: 52px;
+    line-height: 52px;
+    margin: 0;
+}
+
+
+#text-1 span, #text-2 span, #text-3 span {
+    display: inline-block;
+}
